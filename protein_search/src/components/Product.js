@@ -18,7 +18,8 @@ class Product extends Component{
       render() {
           return <div className="product">
               <p className="product-name">{this.state["name"]}</p>
-              <p className="product-price">pris per bar: {this.state["price"]},- kr</p>
+              <p className="product-price">pris per bar: {this.state["price_per_bar"]},- kr</p>
+              <p className="product-price">pris for product: {this.state["price"]},- kr</p>
               <p className="product-discount">rabatt: {this.state["discount"]}</p>
               <p className="product-num_bars">antall barer: {this.state["num_bars"]}</p>
               {/*<p className="product-image-url">{this.state["image_url"]}</p> */}

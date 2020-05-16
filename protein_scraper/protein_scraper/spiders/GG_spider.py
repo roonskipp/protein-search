@@ -3,7 +3,7 @@ import re
 import scrapy
 
 
-class QuotesSpider(scrapy.Spider):
+class GGSpider(scrapy.Spider):
 
     # CODES
     GG_CODE = 1000000
@@ -98,6 +98,7 @@ class QuotesSpider(scrapy.Spider):
         # product_dict["subproducts"] = sub_products
 
         # ^^^
+        self.products_list.append(product_dict)
         yield product_dict
 
         
@@ -743,7 +744,7 @@ class QuotesSpider(scrapy.Spider):
         elif price == "null":
             return None
         elif num_bars != None and price != None:
-            return str(float(price)/ float(num_bars))
+            return str(float(price)/ float(num_bars))[0:5]
 
     # get url for product
     def GG_build_product_url(self, url):
