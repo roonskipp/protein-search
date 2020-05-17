@@ -10,7 +10,8 @@ class SearchBar extends Component {
   }
 
   handleSearch (e) {
-    this.setState({ search: e.target.value })
+    this.setState({ search: e.target.value }, () => this.props.SearchCallback(this.state.search))
+    
   }
 
   handleGoClick () {

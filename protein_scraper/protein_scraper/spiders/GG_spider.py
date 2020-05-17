@@ -1,6 +1,7 @@
 import math
 import re
 import scrapy
+from bs4 import BeautifulSoup
 
 
 class GGSpider(scrapy.Spider):
@@ -40,6 +41,10 @@ class GGSpider(scrapy.Spider):
                     "discount": product.xpath('.//div[@class="promotion sale"]/span/text()').extract_first()
                 }
 
+                price = product.xpath('span[@id="gtm-data"]/@data-price').extract_first()
+                if(price == None):
+                    price = product.xpath('div[@class="price-sales"]/text()').extract_first().replace('\n', '')
+                    product_dict["price"] = price
 
                 product_dict["num_bars"] = self.GG_num_bars(product_dict["name"])
                 product_dict["price_per_bar"] = self.PPB(product_dict["num_bars"], product_dict["price"])
@@ -64,6 +69,13 @@ class GGSpider(scrapy.Spider):
         description = response.selector.xpath('//div[@class="product-short-description"]/text()').extract_first().strip()
         product_dict = response.meta["product_dict"]
         product_dict["description"] = description
+
+        # add all site text to product dict
+
+        html = response.body.decode("utf-8")
+        soup = BeautifulSoup(html)
+        html_text = soup.get_text().strip()
+        product_dict["site_text"] = html_text
 
         ## get product label
 
@@ -98,6 +110,8 @@ class GGSpider(scrapy.Spider):
         # product_dict["subproducts"] = sub_products
 
         # ^^^
+        if(product_dict["price"] == "null"):
+            return
         self.products_list.append(product_dict)
         yield product_dict
 

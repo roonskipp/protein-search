@@ -10,7 +10,8 @@ class Product extends Component{
             "num_bars": props.num_bars,
             "price_per_bar": props.price_per_bar,
             "image_url": props.image_url,
-            "description": props.description
+            "description": props.description,
+            "site_text" : props.site_text
           
         }
       }
@@ -25,6 +26,7 @@ class Product extends Component{
               {/*<p className="product-image-url">{this.state["image_url"]}</p> */}
               <img src={this.state["image_url"]} alt="null"/>
               <p className="product-description">Produktbeskrivelse: {this.state["description"]}</p>
+      {/*<p className="product-description">Site-text: {this.state["site_text"]}</p>*/}
           </div>
       }
 }

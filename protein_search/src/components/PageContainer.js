@@ -18,13 +18,132 @@ class PageContainer extends Component{
             products : null,
             filtered : [],
             scraping: true,
-            optionSelected: null
+            optionSelected: "relevance",
+            documents: null,
+            word2id: null,
+            id2word: null,
+            document_vectors : null,
+            maxlen : null,
+            search_vec : null,
+            cosine_products : null,
+            search_string : "",
         }
+      }
+
+      buildSearchVector = (search) => {
+        let search_string = search.toLowerCase()
+        search_string = search_string.split(' ')
+        let searchVec =  Array(this.state.maxlen).fill(0)
+        for(var i=0; i< search_string.length; i++){
+          let word = search_string[i];
+          if(Object.keys(this.state.word2id).includes(word)){
+            searchVec[this.state.word2id[word]] = 1;
+          }
+        }
+        this.setState({
+          search_vec : searchVec
+        }, () => this.cosineSim())
+      }
+
+      cosineSim = () => {
+          let cosine_scores = {}
+          let indexed_scores = []
+          for( var i = 0; i<this.state.document_vectors.length; i++){
+            let doc_vec = this.state.document_vectors[i];
+            let doc_vec_mag = Math.sqrt(doc_vec.reduce((a, b) => a + b, 0));
+            let search_vec_mag = Math.sqrt(this.state.search_vec.reduce((a, b) => a +b, 0));
+            let bottom = doc_vec_mag * search_vec_mag
+            let dot_product = 0
+            // get top which should be dot product of doc_vec and search_vec
+            for(var j=0; j<this.state.maxlen; j++){
+                dot_product += (doc_vec[j] * this.state.search_vec[j])
+            }
+            cosine_scores[i] = (dot_product/bottom)
+            indexed_scores.push([i, (dot_product/bottom)])
+          }
+          indexed_scores.sort(function(first, second) {
+            return second[1] - first[1];
+          });
+            this.setState({
+              cosine_products : indexed_scores
+            })
+
+      }
+
+      buildDocs = () => {
+        let site_texts = []
+        for(var i = 0; i< this.state.products.length; i++){
+          site_texts.push(this.state.products[i].site_text)
+        }
+        this.setState({
+          documents : site_texts
+        }, () => this.buildTermDict())
+      }
+
+      buildTermDict = () => {
+        let vocab = []
+        let maxlen = 0
+        let documents = this.state.documents;
+        let updated_docs = []
+        for(var i=0; i<documents.length; i++){
+            let doc = documents[i];
+            doc = doc.replace(/(\r\n|\n|\r)/gm, " ");
+            doc = doc.replace(/ +(?= )/g,'');
+            doc = doc.toLowerCase()
+            doc = doc.split(" ");
+            updated_docs.push(doc)
+            if(doc.length > maxlen){
+              maxlen = doc.length
+            }
+            for(var j=0; j<doc.length; j++){
+              let word = doc[j];
+              if (!vocab.includes(word)){
+                vocab.push(word)
+              }
+            }
+        }
+        this.setState({
+          documents : updated_docs
+      }, () => this.buildWord2Id(vocab))
+      }
+
+      buildWord2Id = (vocab, maxlen) => {
+        let word2id = {}
+        let id2word = {}
+        for(var i = 0; i< vocab.length; i++){
+          let word = vocab[i]
+          word2id[word] = i
+          id2word[i] = word
+        }
+        this.setState({
+          word2id: word2id,
+          id2word: id2word,
+          maxlen : Object.keys(word2id).length
+        }, () => this.buildVectors(word2id, id2word))
+
+      }
+
+      buildVectors = (word2id, id2word) => {
+        let documents = this.state.documents
+        let document_vectors = []
+        let maxlen = Object.keys(word2id).length
+        let old_doc = []
+        for(var i = 0; i<documents.length; i++){
+          let docVec =  Array(maxlen).fill(0)
+          let doc = documents[i]
+          for(var j=0; j<doc.length; j++){
+            let word = doc[j]
+            docVec[word2id[word]] = 1
+          }
+          document_vectors.push(docVec)
+        }
+        this.setState({
+          document_vectors : document_vectors
+        })
       }
 
      
       handleOptionChange = (optionSelected) =>{
-        console.log(optionSelected);
         this.setState({
           optionSelected : optionSelected
         }, () => {
@@ -70,22 +189,25 @@ class PageContainer extends Component{
             filtered : relevant_products
           })
         }
+        else if(this.state.optionSelected == "relevance"){
+         this.buildSearchVector(this.state.search_string)
+        }
         else{
         this.setState({
             filtered : relevant_products
-        })
+        }, () => this.buildSearchVector(search))
         }
       }
 
       componentDidMount = () => {
         
-        console.log(this.state)
         this.CallCrawler()
-
       }
 
       SearchBarCallback = (search) => {
-        this.searchProducts(search);
+        this.setState({
+          search_string : search
+        }, () => this.searchProducts(search))
       }
 
       CallCrawler = async () => {
@@ -104,16 +226,13 @@ class PageContainer extends Component{
             response.json())
             .then(data => {
               if (data.hasOwnProperty('status')){
-                  console.log(data);
                   crawlAgain = true
               }
               else {
-                console.log(data);
-                console.log("Setting state")
                 this.setState({
                   products: data,
                   scraping: false
-                })
+                }, () => this.buildDocs())
 
               }
             })
@@ -123,7 +242,7 @@ class PageContainer extends Component{
 
         if(crawlAgain){
           await this.sleep(2000);
-          console.log("LOL")
+          console.log("Calling server again...")
           this.CallCrawler()
         }
         }
@@ -147,7 +266,7 @@ class PageContainer extends Component{
           return <div className="page-container">
               <SearchBar SearchCallback={this.SearchBarCallback}/>
               <RadioButtons handleOptionChange={this.handleOptionChange}/>
-              <ProductList products={this.state.filtered}/>
+              <ProductList optionSelected={this.state.optionSelected} products={this.state.products} filtered_products={this.state.filtered} indexed_scores={this.state.cosine_products}/>
           </div>
         }
       }

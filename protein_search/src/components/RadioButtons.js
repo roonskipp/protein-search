@@ -41,6 +41,14 @@ class RadioButtons extends Component{
         Amount of bars
       </label>
     </div>
+    <div className="radio">
+      <label>
+        <input type="radio" value="relevance" 
+                      checked={this.state.selectedOption === 'relevance'} 
+                      onChange={this.handleOptionChange} />
+        Relevance
+      </label>
+    </div>
   </form>
           </div>
       }
