@@ -5,6 +5,7 @@ import Loader from 'react-loader-spinner'
 import SearchBar from '../components/SearchBar';
 import ProductList from '../components/ProductList';
 import RadioButtons from '../components/RadioButtons';
+import NutritionSwitch from '../components/NutritionSwitch';
 
 
 
@@ -18,7 +19,7 @@ class PageContainer extends Component{
             products : null,
             filtered : [],
             scraping: true,
-            optionSelected: "relevance",
+            optionSelected: null,
             documents: null,
             word2id: null,
             id2word: null,
@@ -27,6 +28,8 @@ class PageContainer extends Component{
             search_vec : null,
             cosine_products : null,
             search_string : "",
+            crawl_endpoint : "crawl",
+            checked : false
         }
       }
 
@@ -71,6 +74,7 @@ class PageContainer extends Component{
       }
 
       buildDocs = () => {
+        console.log("build docs")
         let site_texts = []
         for(var i = 0; i< this.state.products.length; i++){
           site_texts.push(this.state.products[i].site_text)
@@ -139,7 +143,7 @@ class PageContainer extends Component{
         }
         this.setState({
           document_vectors : document_vectors
-        })
+        }, () => this.searchProducts(this.state.search_string))
       }
 
      
@@ -183,6 +187,13 @@ class PageContainer extends Component{
             filtered : relevant_products
           })
         }
+        else if (this.state.optionSelected == "kcal"){
+          relevant_products.sort((a,b) => (a.lowest_kcal < b.lowest_kcal) ? -1 : 1)
+          console.log(relevant_products)
+          this.setState({
+            filtered : relevant_products
+          })
+        }
         else if (this.state.optionSelected == "amount"){
           relevant_products.sort((a,b) => (a.num_bars > b.num_bars) ? -1 : 1)
           this.setState({
@@ -190,6 +201,7 @@ class PageContainer extends Component{
           })
         }
         else if(this.state.optionSelected == "relevance"){
+          console.log("debug ")
          this.buildSearchVector(this.state.search_string)
         }
         else{
@@ -204,6 +216,21 @@ class PageContainer extends Component{
         this.CallCrawler()
       }
 
+      handleSwitchChange = (checked) => {
+        if(checked == true){
+          this.setState({
+            crawl_endpoint : "crawlnut",
+            checked : true
+          }, () => this.CallCrawler())
+        }
+        else{
+          this.setState({
+            crawl_endpoint : "crawl",
+            checked: false
+          }, () => this.CallCrawler())
+        }
+      }
+
       SearchBarCallback = (search) => {
         this.setState({
           search_string : search
@@ -211,6 +238,9 @@ class PageContainer extends Component{
       }
 
       CallCrawler = async () => {
+        this.setState({
+          scraping: true
+        })
         
         let crawlAgain = false;
 
@@ -221,7 +251,7 @@ class PageContainer extends Component{
           
         };
       
-        await fetch('http://localhost:5000/crawl', options)
+        await fetch('http://localhost:5000/' + this.state.crawl_endpoint, options)
           .then(async response => 
             response.json())
             .then(data => {
@@ -263,9 +293,12 @@ class PageContainer extends Component{
       </div>
         }
         else{
+          console.log("STATE")
+          console.log(this.state)
           return <div className="page-container">
+              <NutritionSwitch checked={this.state.checked} handleSwitchChange={this.handleSwitchChange}/>
               <SearchBar SearchCallback={this.SearchBarCallback}/>
-              <RadioButtons handleOptionChange={this.handleOptionChange}/>
+              <RadioButtons optionSelected={this.state.optionSelected} handleOptionChange={this.handleOptionChange}/>
               <ProductList optionSelected={this.state.optionSelected} products={this.state.products} filtered_products={this.state.filtered} indexed_scores={this.state.cosine_products}/>
           </div>
         }

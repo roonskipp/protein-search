@@ -1,10 +1,11 @@
 import math
 import re
 import scrapy
+import json
 from bs4 import BeautifulSoup
 
 
-class GGSpider(scrapy.Spider):
+class GGSpiderNut(scrapy.Spider):
 
     # CODES
     GG_CODE = 1000000
@@ -90,37 +91,53 @@ class GGSpider(scrapy.Spider):
         # vvvv  uncomment to run for nutrition tables
 
 
-        # nutrition_tables = response.selector.xpath('//div[@class="master-product-nutrition-and-ingredients"]/div/div[@class="collapsible-content"]/table')
+        nutrition_tables = response.selector.xpath('//div[@class="master-product-nutrition-and-ingredients"]/div/div[@class="collapsible-content"]/table')
         # can be multiple tables, so have to loop through them
 
 
         # might not have found nutrition table as they vary
-        # if(nutrition_tables == []):
-        #     nutrition_tables = response.selector.xpath('//div[@class="master-product-nutrition-and-ingredients"]/div/div[@class="collapsible-content"]/table')
-        #     if(nutrition_tables == []):
-        #         nutrition_tables = response.selector.xpath('//div[@class="nutrition-and-ingredients columns"]/table')
-        #         if(nutrition_tables == []):
-        #             nutrition_tables = response.selector.xpath('//div[@class="nutrition-and-ingredients columns"]')
-        #             if(nutrition_tables == []):
-        #                 nutrition_tables = response.selector.xpath('//div[@class="long-description columns"]/table')
-        #                 if(nutrition_tables == []):
-        #                     nutrition_tables = response.selector.xpath('//div[@class="nutrition-and-ingredients columns"]')
-        #                     if(nutrition_tables == []):
-        #                         print(response.url)
-        #                         print("STILL NULL SMORC")
+        if(nutrition_tables == []):
+            nutrition_tables = response.selector.xpath('//div[@class="master-product-nutrition-and-ingredients"]/div/div[@class="collapsible-content"]/table')
+            if(nutrition_tables == []):
+                nutrition_tables = response.selector.xpath('//div[@class="nutrition-and-ingredients columns"]/table')
+                if(nutrition_tables == []):
+                    nutrition_tables = response.selector.xpath('//div[@class="nutrition-and-ingredients columns"]')
+                    if(nutrition_tables == []):
+                        nutrition_tables = response.selector.xpath('//div[@class="long-description columns"]/table')
+                        if(nutrition_tables == []):
+                            nutrition_tables = response.selector.xpath('//div[@class="nutrition-and-ingredients columns"]')
+                            if(nutrition_tables == []):
+                                print(response.url)
+                                print("STILL NULL SMORC")
         #                         # swebar wont work
 
 
 
 
         # print("NUT:", response.selector.xpath('//div[@class="master-product-nutrition-and-ingredients"]/div/div[@class="collapsible-content"]'))
-        # sub_products = self.parse_table(nutrition_tables, response.url)
-        # product_dict["subproducts"] = sub_products
+        sub_products = self.parse_table(nutrition_tables, response.url)
 
-        # ^^^
-        if(product_dict["price"] == "null"):
-            return
-        self.products_list.append(product_dict)
+        product_dict["subproducts"] = sub_products
+        lowest_kcal = math.inf
+        for product_key in product_dict["subproducts"].keys():
+            for product_label in product_dict["subproducts"][product_key]:
+                if(product_label.lower() == "energi"):
+                    energy = product_dict["subproducts"][product_key][product_label]
+                    energy_regexed = re.search("\d+\skcal{1}", str(energy))
+                    if(energy_regexed != None):
+                        energy = energy_regexed[0][:-5]
+                        if int(energy) < lowest_kcal:
+                            lowest_kcal = int(energy)
+        if(lowest_kcal != math.inf):
+            product_dict["lowest_kcal"] = lowest_kcal
+        else:
+            product_dict["lowest_kcal"] = None
+        # ^^^       
+
+        # if(product_dict["price"] == "null"):
+        #     return
+        
+        self.nut_products_list.append(product_dict)
         yield product_dict
 
         

@@ -57,6 +57,13 @@
   width: 300px;
 }
 
+.nutrition-switch{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-self: center;
+}
+
 .product-list{
   display: flex;
   align-items: center;

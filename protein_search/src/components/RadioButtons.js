@@ -4,7 +4,7 @@ class RadioButtons extends Component{
     constructor (props) {
         super(props)
         this.state = {
-            selectedOption : null
+            selectedOption : props.optionSelected
         }
       }
 
@@ -47,6 +47,14 @@ class RadioButtons extends Component{
                       checked={this.state.selectedOption === 'relevance'} 
                       onChange={this.handleOptionChange} />
         Relevance
+      </label>
+    </div>
+    <div className="radio">
+      <label>
+        <input type="radio" value="kcal" 
+                      checked={this.state.selectedOption === 'kcal'} 
+                      onChange={this.handleOptionChange} />
+        Kcal
       </label>
     </div>
   </form>
