@@ -26,7 +26,10 @@ class Product extends Component{
             }
             else{
             return <div className="product">
-                <p className="product-name">{this.state["name"]}</p>
+                {/*<p className="product-name">{this.state["name"]}</p>*/}
+            <p>
+            <a className="product-name" href={this.props.url}>{this.props.name}</a>
+            </p>
                 <p className="product-price">price per bar: {this.state["price_per_bar"]},- kr</p>
                 <p className="product-price">price for product: {this.state["price"]},- kr</p>
                 <p className="product-discount">Discount: {this.state["discount"]}%</p>
@@ -41,7 +44,10 @@ class Product extends Component{
           }
         else{
             return <div className="product">
-            <p className="product-name">{this.state["name"]}</p>
+            {/*<p className="product-name">{this.state["name"]}</p>*/}
+            <p>
+            <a className="product-name" href={this.props.url}>{this.props.name}</a>
+            </p>
             <p className="product-price">price per bar: {this.state["price_per_bar"]},- kr</p>
             <p className="product-price">price for product: {this.state["price"]},- kr</p>
             <p className="product-discount">Discount: {this.state["discount"]}</p>

@@ -15,32 +15,32 @@ class ProductList extends Component{
           console.log("List rendered")
           if(this.props.optionSelected != null){
             if(this.props.optionSelected == "price"){
-                  const products = this.props.filtered_products.map((p) => <Product key={p.name} name={p.name} price={p.price} discount={p.discount} description={p.description} price_per_bar={p.price_per_bar} image_url={p.image_url} num_bars={p.num_bars} site_text={p.site_text} lowest_kcal={p.lowest_kcal}/>);
+                  const products = this.props.filtered_products.map((p) => <Product key={p.name} url={p.url} name={p.name} price={p.price} discount={p.discount} description={p.description} price_per_bar={p.price_per_bar} image_url={p.image_url} num_bars={p.num_bars} site_text={p.site_text} lowest_kcal={p.lowest_kcal}/>);
                   return <div className="product-list">
                       {products}
                   </div>
             }
             else if (this.props.optionSelected == "discount"){
-                const products = this.props.filtered_products.map((p) => <Product key={p.name} name={p.name} price={p.price} discount={p.discount} description={p.description} price_per_bar={p.price_per_bar} image_url={p.image_url} num_bars={p.num_bars} site_text={p.site_text} lowest_kcal={p.lowest_kcal} />);
+                const products = this.props.filtered_products.map((p) => <Product key={p.name} url={p.url} name={p.name} price={p.price} discount={p.discount} description={p.description} price_per_bar={p.price_per_bar} image_url={p.image_url} num_bars={p.num_bars} site_text={p.site_text} lowest_kcal={p.lowest_kcal} />);
                   return <div className="product-list">
                       {products}
                   </div>
             }
             else if (this.props.optionSelected == "amount"){
-                const products = this.props.filtered_products.map((p) => <Product key={p.name} name={p.name} price={p.price} discount={p.discount} description={p.description} price_per_bar={p.price_per_bar} image_url={p.image_url} num_bars={p.num_bars} site_text={p.site_text} lowest_kcal={p.lowest_kcal}/>);
+                const products = this.props.filtered_products.map((p) => <Product key={p.name} url={p.url} name={p.name} price={p.price} discount={p.discount} description={p.description} price_per_bar={p.price_per_bar} image_url={p.image_url} num_bars={p.num_bars} site_text={p.site_text} lowest_kcal={p.lowest_kcal}/>);
                   return <div className="product-list">
                       {products}
                   </div>
             }
             else if (this.props.optionSelected == "kcal"){
-                const products = this.props.filtered_products.map((p) => <Product key={p.name} kcal_search={true} name={p.name} price={p.price} discount={p.discount} description={p.description} price_per_bar={p.price_per_bar} image_url={p.image_url} num_bars={p.num_bars} site_text={p.site_text} lowest_kcal={p.lowest_kcal}/>);
+                const products = this.props.filtered_products.map((p) => <Product key={p.name} url={p.url} kcal_search={true} name={p.name} price={p.price} discount={p.discount} description={p.description} price_per_bar={p.price_per_bar} image_url={p.image_url} num_bars={p.num_bars} site_text={p.site_text} lowest_kcal={p.lowest_kcal}/>);
                   return <div className="product-list">
                       {products}
                   </div>
             }
             else if (this.props.optionSelected == "relevance"){
                 if(this.props.indexed_scores != null){
-                const products = this.props.products.map((p) => <Product key={p.name} name={p.name} price={p.price} discount={p.discount} description={p.description} price_per_bar={p.price_per_bar} image_url={p.image_url} num_bars={p.num_bars} site_text={p.site_text} lowest_kcal={p.lowest_kcal}/>);
+                const products = this.props.products.map((p) => <Product key={p.name} url={p.url} name={p.name} price={p.price} discount={p.discount} description={p.description} price_per_bar={p.price_per_bar} image_url={p.image_url} num_bars={p.num_bars} site_text={p.site_text} lowest_kcal={p.lowest_kcal}/>);
                 const products_sorted = []
                 const products_null = []
                 if(this.props.indexed_scores.length != products.length){
@@ -64,7 +64,7 @@ class ProductList extends Component{
                 }
               else{
                     
-                  const products = this.props.products.map((p) => <Product key={p.name} name={p.name} price={p.price} discount={p.discount} description={p.description} price_per_bar={p.price_per_bar} image_url={p.image_url} num_bars={p.num_bars} site_text={p.site_text} lowest_kcal={p.lowest_kcal}/>);
+                  const products = this.props.products.map((p) => <Product key={p.name} url={p.url} name={p.name} price={p.price} discount={p.discount} description={p.description} price_per_bar={p.price_per_bar} image_url={p.image_url} num_bars={p.num_bars} site_text={p.site_text} lowest_kcal={p.lowest_kcal}/>);
                   return <div className="product-list">
                       {products}
                   </div>

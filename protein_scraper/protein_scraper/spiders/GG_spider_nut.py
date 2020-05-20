@@ -43,11 +43,9 @@ class GGSpiderNut(scrapy.Spider):
                 }
 
                 if product_dict["discount"] != None:
-                    print(product_dict["discount"])
                     discount = product_dict["discount"]
                     regexed_discount = re.search("\d+%", str(discount))
                     if regexed_discount != None:
-                        print("regexed:", regexed_discount[0][:-1])
                         product_dict["discount"] = regexed_discount[0][:-1]
 
                 price = product.xpath('span[@id="gtm-data"]/@data-price').extract_first()
@@ -69,6 +67,7 @@ class GGSpiderNut(scrapy.Spider):
                         if(link == None):
                             link = product.xpath('.//div[@class="product-tile-image__container relative"]')
                 link = self.GG_build_product_url(link)
+                product_dict["url"] = link
                 request = scrapy.Request(link, callback = self.parse_product)
                 request.meta["product_dict"] = product_dict
                 yield request
@@ -128,6 +127,8 @@ class GGSpiderNut(scrapy.Spider):
                         energy = energy_regexed[0][:-5]
                         if int(energy) < lowest_kcal:
                             lowest_kcal = int(energy)
+
+
         if(lowest_kcal != math.inf):
             product_dict["lowest_kcal"] = lowest_kcal
         else:

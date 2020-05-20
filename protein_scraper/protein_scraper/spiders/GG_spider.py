@@ -42,11 +42,9 @@ class GGSpider(scrapy.Spider):
                 }
 
                 if product_dict["discount"] != None:
-                    print(product_dict["discount"])
                     discount = product_dict["discount"]
                     regexed_discount = re.search("\d+%", str(discount))
                     if regexed_discount != None:
-                        print("regexed:", regexed_discount[0][:-1])
                         product_dict["discount"] = regexed_discount[0][:-1]
 
                 price = product.xpath('span[@id="gtm-data"]/@data-price').extract_first()
@@ -68,6 +66,7 @@ class GGSpider(scrapy.Spider):
                         if(link == None):
                             link = product.xpath('.//div[@class="product-tile-image__container relative"]')
                 link = self.GG_build_product_url(link)
+                product_dict["url"] = link
                 request = scrapy.Request(link, callback = self.parse_product)
                 request.meta["product_dict"] = product_dict
                 yield request
